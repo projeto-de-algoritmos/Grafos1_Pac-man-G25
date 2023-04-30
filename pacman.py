@@ -2,6 +2,7 @@ import pygame
 from mapa import mapa
 from collections import deque
 import sys
+import time
 
 # Define as cores
 PRETO = (0, 0, 0)
@@ -20,21 +21,12 @@ fantasma1_img = pygame.image.load("fantasma1.png")
 tamanho = (24, 24)
 imagem_redimensionada_fantasma = pygame.transform.scale(fantasma1_img, tamanho)
 
-# Define os ticks
-ticks=0
-# Define o temporizador
-temporizador = pygame.time.Clock()
-tempo_segundo = 0  # Inicializa o contador do tempo em 0
-contador_tempo = 0
-
 # Define o tamanho da janela
 tamanho = (540, 540)
- 
-direcao_pacman = "direita"
 
 # Inicializa o Pygame
 pygame.init()
- 
+
 # Define o título da janela
 pygame.display.set_caption("Pac-Man")
 
@@ -44,7 +36,168 @@ tela = pygame.display.set_mode(tamanho)
 # Define a fonte
 fonte = pygame.font.SysFont(None, 25)
 
-# 
+def menu_inicial():
+ 
+    # Define as opções do menu
+    opcoes = ["Jogar", "Instruções", "Créditos", "Sair"]
+    opcao_selecionada = 0
+
+    while True:
+        # Limpa a tela
+        tela.fill(PRETO)
+
+        # Desenha o título
+        titulo = fonte.render("Pac-Man", True, AMARELO)
+        titulo_rect = titulo.get_rect(center=(tamanho[0]/2, 100))
+        tela.blit(titulo, titulo_rect)
+
+        # Desenha as opções do menu
+        for i, opcao in enumerate(opcoes):
+            cor = AMARELO if i == opcao_selecionada else BRANCO
+            texto = fonte.render(opcao, True, cor)
+            texto_rect = texto.get_rect(center=(tamanho[0]/2, 250 + i * 50))
+            tela.blit(texto, texto_rect)
+
+        # Atualiza a tela
+        pygame.display.flip()
+
+        # Lida com a interação do usuário
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                sys.exit()
+            elif evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_UP:
+                    opcao_selecionada = (opcao_selecionada - 1) % len(opcoes)
+                elif evento.key == pygame.K_DOWN:
+                    opcao_selecionada = (opcao_selecionada + 1) % len(opcoes)
+                elif evento.key == pygame.K_RETURN:
+                    if opcao_selecionada == 0:
+                        # Começa o jogo
+                        iniciar_jogo()
+                        return True
+                    elif opcao_selecionada == 1:
+                        # Mostra as instruções
+                        # Implemente essa opção de acordo com o que você quiser mostrar
+                        pass
+                    elif opcao_selecionada == 2:
+                        # Mostra os créditos
+                        # Implemente essa opção de acordo com o que você quiser mostrar
+                        pass
+                    elif opcao_selecionada == 3:
+                        # Sai do jogo
+                        sys.exit()
+
+def iniciar_jogo():
+    # Define os ticks
+    ticks=0
+    # Define o temporizador
+    temporizador = pygame.time.Clock()
+    tempo_segundo = 0  # Inicializa o contador do tempo em 0
+
+    # Loop principal do jogo
+    checar = False
+
+    iterador_posicao=0
+    #Define o tamanho da janela
+    tamanho = (540, 540)
+    
+    direcao_pacman = "direita"
+
+    # Inicializa o Pygame
+    pygame.init()
+    
+    # Define o título da janela
+    pygame.display.set_caption("Pac-Man")
+
+    # Cria a janela
+    tela2 = pygame.display.set_mode(tamanho)
+    
+    # Define a fonte
+    fonte = pygame.font.SysFont(None, 25)
+
+    #Loop principal do jogo
+    while not checar:
+
+        if pacman.pontos==274:
+            # Adicione o código para encerrar o jogo ou para mostrar uma mensagem de "game over"
+            font = pygame.font.Font(None, 72)
+            text = font.render("You Win", 1, BRANCO)
+            tela2.blit(text, (540 / 2 - text.get_width() / 2, 540 / 2 - text.get_height() / 2))
+            pygame.display.flip()
+            pygame.time.wait(2000)
+            #running = False
+            sys.exit()
+
+        #Verifica se há colisão do pacman com o fantasma
+        pacman.colide_com_fantasma(fantasma1)
+        pacman.colide_com_fantasma(fantasma2)
+        pacman.colide_com_fantasma(fantasma3)
+        # Atualiza o temporizados
+        tempo_millisegundos = temporizador.tick(60)
+        tempo_segundo += tempo_millisegundos / 70.0
+
+        # Move o fantasma a cada segundo
+        if tempo_segundo > 1:
+            ticks=ticks+1
+            #print(ticks)
+            fantasma1.atualizar_posicao(pacman.posicao)
+            tempo_segundo -= 1
+
+            if ticks >20:
+                fantasma2.atualizar_posicao(pacman.posicao)
+                tempo_segundo -= 1
+            if ticks >40:
+                fantasma3.atualizar_posicao(pacman.posicao)
+                tempo_segundo -= 1
+                
+        # Atualiza a posição do Pac-Man
+        if ticks % 1 == 0:
+            if iterador_posicao == 10:
+                pacman.atualizar_posicao_pacman(pacman.posicao, direcao_pacman)
+                iterador_posicao=0
+
+        # Eventos do Pygame
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                checar = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    if (pacman.posicao[0],pacman.posicao[1]+1) in grafo:
+                        direcao_pacman = "direita"
+                elif event.key == pygame.K_LEFT:
+                    if (pacman.posicao[0],pacman.posicao[1]-1) in grafo:
+                        direcao_pacman = "esquerda"
+                elif event.key == pygame.K_UP:
+                    if (pacman.posicao[0]-1,pacman.posicao[1]) in grafo:
+                        direcao_pacman = "cima"
+                elif event.key == pygame.K_DOWN:
+                    if (pacman.posicao[0]+1,pacman.posicao[1]) in grafo:
+                        direcao_pacman = "baixo"
+                        
+        tela2.fill(PRETO)
+
+        # Desenha o mapa
+        desenha_mapa(mapa, 20,pacman)
+
+        # Renderiza o texto da pontuação
+        pontuacao_texto = fonte.render(f"Pontuação: {pacman.pontos}", True, VERMELHO)
+
+        # Desenha o texto da pontuação na tela
+        tela2.blit(pontuacao_texto, (10, 2))
+
+        # Desenha o Pac-Man
+        pacman.desenhar()
+        # Desenha os fantasmas
+        fantasma1.desenhar()
+        fantasma2.desenhar()
+        fantasma3.desenhar()
+        
+        # Atualiza a tela
+        pygame.display.update()
+        
+        iterador_posicao += 1
+
+
 def bfs(grafo, origem, destino):
     visitados = set()
     fila = deque([(origem, [])])
@@ -195,92 +348,11 @@ pacman = Pacman(25, 13, 20)
 fantasma1 = Fantasma(10, 12, 20)
 fantasma2 = Fantasma(10, 14, 20)
 fantasma3 = Fantasma(10, 13, 20)
-                
-# Loop principal do jogo
-checar = False
 
-i=0
+# Exibe o menu inicial
 
-while not checar:
-    if pacman.pontos==274:
-        # Adicione o código para encerrar o jogo ou para mostrar uma mensagem de "game over"
-        font = pygame.font.Font(None, 72)
-        text = font.render("You Win", 1, BRANCO)
-        tela.blit(text, (540 / 2 - text.get_width() / 2, 540 / 2 - text.get_height() / 2))
-        pygame.display.flip()
-        pygame.time.wait(2000)
-        #running = False
-        sys.exit()
-
-    #Verifica se há colisão do pacman com o fantasma
-    pacman.colide_com_fantasma(fantasma1)
-    pacman.colide_com_fantasma(fantasma2)
-    pacman.colide_com_fantasma(fantasma3)
-    # Atualiza o temporizados
-    tempo_millisegundos = temporizador.tick(60)
-    tempo_segundo += tempo_millisegundos / 70.0
-
-    # Move o fantasma a cada segundo
-    if tempo_segundo > 1:
-        ticks=ticks+1
-        #print(ticks)
-        fantasma1.atualizar_posicao(pacman.posicao)
-        tempo_segundo -= 1
-
-        if ticks >20:
-            fantasma2.atualizar_posicao(pacman.posicao)
-            tempo_segundo -= 1
-        if ticks >40:
-            fantasma3.atualizar_posicao(pacman.posicao)
-            tempo_segundo -= 1
-            
-    # Atualiza a posição do Pac-Man
-    if ticks % 1 == 0:
-        if i == 10:
-            pacman.atualizar_posicao_pacman(pacman.posicao, direcao_pacman)
-            i=0
-
-    # Eventos do Pygame
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            checar = True
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
-                if (pacman.posicao[0],pacman.posicao[1]+1) in grafo:
-                    direcao_pacman = "direita"
-            elif event.key == pygame.K_LEFT:
-                if (pacman.posicao[0],pacman.posicao[1]-1) in grafo:
-                    direcao_pacman = "esquerda"
-            elif event.key == pygame.K_UP:
-                if (pacman.posicao[0]-1,pacman.posicao[1]) in grafo:
-                    direcao_pacman = "cima"
-            elif event.key == pygame.K_DOWN:
-                if (pacman.posicao[0]+1,pacman.posicao[1]) in grafo:
-                    direcao_pacman = "baixo"
-
-    # Limpa a tela
-    tela.fill(PRETO)
-
-    # Desenha o mapa
-    desenha_mapa(mapa, 20,pacman)
-
-    # Renderiza o texto da pontuação
-    pontuacao_texto = fonte.render(f"Pontuação: {pacman.pontos}", True, VERMELHO)
-
-    # Desenha o texto da pontuação na tela
-    tela.blit(pontuacao_texto, (10, 2))
-
-    # Desenha o Pac-Man
-    pacman.desenhar()
-    # Desenha os fantasmas
-    fantasma1.desenhar()
-    fantasma2.desenhar()
-    fantasma3.desenhar()
-    
-    # Atualiza a tela
-    pygame.display.update()
-    
-    i += 1
-
-# Encerra o Pygame
-pygame.quit()
+while True:
+    if menu_inicial():
+        print("Jogo inicado")
+    # Encerra o Pygame
+    pygame.quit()
