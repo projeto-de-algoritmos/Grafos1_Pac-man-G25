@@ -85,6 +85,9 @@ class Fantasma:
                 if fantasma != self and fantasma.posicao == nova_posicao:
                     return
             self.set_posicao(nova_posicao)
+            
+# Define um dicionário que mapeia a direção atual do Pac-Man para o ângulo de rotação necessário
+direcoes = {"direita": 0, "cima": 90, "esquerda": 180, "baixo": 270}
 
 # Define a classe Pacman
 class Pacman:
@@ -94,6 +97,7 @@ class Pacman:
         self.set_posicao((x, y))
         self.pontos = 0
         self.visitados = set()
+        self.direcao = "direita"  # Define a direção inicial do Pac-Man como "direita"
 
     def set_posicao(self, posicao):
         if posicao in grafo:
@@ -104,15 +108,19 @@ class Pacman:
         if direcao_pacman == "direita":
             if (i, j+1) in grafo:
                 j += 1
+                self.direcao = direcao_pacman  # Atualiza a direção do Pac-Man
         elif direcao_pacman == "esquerda":
             if (i, j-1) in grafo:
                 j -= 1
+                self.direcao = direcao_pacman  # Atualiza a direção do Pac-Man
         elif direcao_pacman == "cima":
             if (i-1, j) in grafo:
                 i -= 1
+                self.direcao = direcao_pacman  # Atualiza a direção do Pac-Man
         elif direcao_pacman == "baixo":
             if (i+1, j) in grafo:
                 i += 1
+                self.direcao = direcao_pacman  # Atualiza a direção do Pac-Man
 
         if (i, j) in grafo:
             posicao_atual=i,j
@@ -127,8 +135,10 @@ class Pacman:
 
     def desenhar(self):
         x, y = self.posicao
+        # Rotaciona a imagem do Pac-Man de acordo com a direção atual
+        imagem_rotacionada = pygame.transform.rotate(imagem_redimensionada, direcoes[self.direcao])
         # Desenha o Pac-Man
-        tela.blit(imagem_redimensionada, [y*self.elemento_size+self.elemento_size//30, x*self.elemento_size+self.elemento_size//30])
+        tela.blit(imagem_rotacionada, [y*self.elemento_size+self.elemento_size//30, x*self.elemento_size+self.elemento_size//30])
     
     def colide_com_fantasma(self, fantasma):
         if self.posicao == fantasma.posicao:
