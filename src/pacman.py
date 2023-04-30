@@ -11,12 +11,12 @@ VERMELHO = (255, 0, 0)
 BRANCO = (255, 255, 255)
 
 # Carrega a imagem do Pac-Man
-pacman_img = pygame.image.load("packman_icon.png")
+pacman_img = pygame.image.load("././src/assets/pacman_icon.png")
 tamanho = (20, 20)
 imagem_redimensionada = pygame.transform.scale(pacman_img, tamanho)
 
 # Carrega a imagem do fantasmas
-fantasma1_img = pygame.image.load("fantasma1.png")
+fantasma1_img = pygame.image.load("././src/assets/fantasma1.png")
 tamanho = (24, 24)
 imagem_redimensionada_fantasma = pygame.transform.scale(fantasma1_img, tamanho)
 
@@ -48,7 +48,7 @@ def menu_inicial():
         tela.fill(PRETO)
 
         # Carrega a imagem do Pac-Man
-        pacman_logo = pygame.image.load('pacman-logo.png')
+        pacman_logo = pygame.image.load('././src/assets/pacman-logo.png')
         
         # Redimensiona a imagem do Pac-Man para 200 pixels de largura
         pacman_logo = pygame.transform.scale(pacman_logo, (400, int(400 * pacman_logo.get_height() / pacman_logo.get_width())))
