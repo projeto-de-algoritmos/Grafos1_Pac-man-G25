@@ -102,13 +102,18 @@ class Pacman:
     def atualizar_posicao_pacman(self,pacman_posicao, direcao_pacman):
         i, j = pacman_posicao
         if direcao_pacman == "direita":
-            j += 1
+            if (i, j+1) in grafo:
+                j += 1
         elif direcao_pacman == "esquerda":
-            j -= 1
+            if (i, j-1) in grafo:
+                j -= 1
         elif direcao_pacman == "cima":
-            i -= 1
+            if (i-1, j) in grafo:
+                i -= 1
         elif direcao_pacman == "baixo":
-            i += 1
+            if (i+1, j) in grafo:
+                i += 1
+
         if (i, j) in grafo:
             posicao_atual=i,j
             for fantasma in [fantasma1, fantasma2]:
@@ -188,7 +193,7 @@ i=0
 
 while not checar:
     if pacman.pontos==274:
-        # Adicione o código para reiniciar o jogo ou para mostrar uma mensagem de "game over"
+        # Adicione o código para encerrar o jogo ou para mostrar uma mensagem de "game over"
         font = pygame.font.Font(None, 72)
         text = font.render("You Win", 1, BRANCO)
         tela.blit(text, (540 / 2 - text.get_width() / 2, 540 / 2 - text.get_height() / 2))
@@ -219,7 +224,7 @@ while not checar:
             fantasma3.atualizar_posicao(pacman.posicao)
             tempo_segundo -= 1
             
-        # Atualiza a posição do Pac-Man
+    # Atualiza a posição do Pac-Man
     if ticks % 1 == 0:
         if i == 10:
             pacman.atualizar_posicao_pacman(pacman.posicao, direcao_pacman)
@@ -231,15 +236,18 @@ while not checar:
             checar = True
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
-                direcao_pacman = "direita"
+                if (pacman.posicao[0],pacman.posicao[1]+1) in grafo:
+                    direcao_pacman = "direita"
             elif event.key == pygame.K_LEFT:
-                direcao_pacman = "esquerda"
+                if (pacman.posicao[0],pacman.posicao[1]-1) in grafo:
+                    direcao_pacman = "esquerda"
             elif event.key == pygame.K_UP:
-                direcao_pacman = "cima"
+                if (pacman.posicao[0]-1,pacman.posicao[1]) in grafo:
+                    direcao_pacman = "cima"
             elif event.key == pygame.K_DOWN:
-                direcao_pacman = "baixo"
+                if (pacman.posicao[0]+1,pacman.posicao[1]) in grafo:
+                    direcao_pacman = "baixo"
 
-    #fantasma2.atualizar_posicao(pacman.posicao)
     # Limpa a tela
     tela.fill(PRETO)
 
