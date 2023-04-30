@@ -75,22 +75,6 @@ class Fantasma:
                 if fantasma != self and fantasma.posicao == nova_posicao:
                     return
             self.set_posicao(nova_posicao)
-            
-def atualizar_posicao_pacman(pacman_posicao, direcao_pacman):
-    i, j = pacman_posicao
-    if direcao_pacman == "direita":
-        j += 1
-    elif direcao_pacman == "esquerda":
-        j -= 1
-    elif direcao_pacman == "cima":
-        i -= 1
-    elif direcao_pacman == "baixo":
-        i += 1
-    if (i, j) in grafo:
-        for fantasma in [fantasma1, fantasma2]:
-            if fantasma.posicao == (i, j):
-                return
-        pacman.set_posicao((i, j))
 
 # Define a classe Pacman
 class Pacman:
@@ -105,9 +89,45 @@ class Pacman:
         if posicao in grafo:
             self.posicao = posicao
 
+    def atualizar_posicao_pacman(self,pacman_posicao, direcao_pacman):
+        i, j = pacman_posicao
+        if direcao_pacman == "direita":
+            j += 1
+        elif direcao_pacman == "esquerda":
+            j -= 1
+        elif direcao_pacman == "cima":
+            i -= 1
+        elif direcao_pacman == "baixo":
+            i += 1
+        if (i, j) in grafo:
+            posicao_atual=i,j
+            for fantasma in [fantasma1, fantasma2]:
+                if (i,j) not in self.visitados:
+                    self.visitados.add(posicao_atual)
+                    self.pontos += 1
+
+                if fantasma.posicao == (i, j):
+                    return
+            pacman.set_posicao((i, j))
+
     def desenhar(self):
         x, y = self.posicao
         pygame.draw.circle(tela, self.color, [y*self.elemento_size+self.elemento_size//2, x*self.elemento_size+self.elemento_size//2], self.elemento_size//2)
+    
+    def colide_com_fantasma(self, fantasma):
+        if self.posicao == fantasma.posicao:
+            # Se o pacman colidiu com um fantasma, mata o pacman
+            self.morrer()
+    
+    def morrer(self):
+        # Adicione o código para reiniciar o jogo ou para mostrar uma mensagem de "game over"
+        font = pygame.font.Font(None, 72)
+        text = font.render("Game Over", 1, BRANCO)
+        tela.blit(text, (540 / 2 - text.get_width() / 2, 540 / 2 - text.get_height() / 2))
+        pygame.display.flip()
+        pygame.time.wait(2000)
+        #running = False
+        pygame.quit()
 
 def get_vizinhos(i, j):
     vizinhos = []
@@ -130,12 +150,17 @@ for i, linha in enumerate(mapa):
             grafo[(i, j)] = vizinhos
 
 # Define a função para desenhar o mapa
-def desenha_mapa(mapa, tamanho_elemento):
+def desenha_mapa(mapa, tamanho_elemento, pacman):
     for i, linha in enumerate(mapa):
         for j, coluna in enumerate(linha):
             if coluna == "#":
                 pygame.draw.rect(tela, AZUL, [j*tamanho_elemento, i*tamanho_elemento, tamanho_elemento, tamanho_elemento])
-
+            elif (i, j) in grafo:
+                if (i, j) not in pacman.visitados:
+                    pygame.draw.circle(tela, BRANCO, [j*tamanho_elemento+tamanho_elemento//2, i*tamanho_elemento+tamanho_elemento//2], 2)
+                else:
+                    # Apaga a bolinha branca
+                    pygame.draw.rect(tela, PRETO, [j*tamanho_elemento, i*tamanho_elemento, tamanho_elemento, tamanho_elemento])
 
 # Cria o Pac-Man
 pacman = Pacman(25, 13, 20)      
@@ -151,6 +176,20 @@ checar = False
 i=0
 
 while not checar:
+    if pacman.pontos==274:
+        # Adicione o código para reiniciar o jogo ou para mostrar uma mensagem de "game over"
+        fonte = pygame.fonte.Font(None, 72)
+        text = fonte.render("You Win", 1, BRANCO)
+        tela.blit(text, (540 / 2 - text.get_width() / 2, 540 / 2 - text.get_height() / 2))
+        pygame.display.flip()
+        pygame.time.wait(2000)
+        #running = False
+        pygame.quit()
+
+    #Verifica se há colisão do pacman com o fantasma
+    pacman.colide_com_fantasma(fantasma1)
+    pacman.colide_com_fantasma(fantasma2)
+    pacman.colide_com_fantasma(fantasma3)
     # Atualiza o temporizados
     tempo_millisegundos = temporizador.tick(60)
     tempo_segundo += tempo_millisegundos / 70.0
@@ -161,9 +200,6 @@ while not checar:
         #print(ticks)
         fantasma1.atualizar_posicao(pacman.posicao)
         tempo_segundo -= 1
-#        pacman.colide_com_fantasma(fantasma1)
-#        pacman.colide_com_fantasma(fantasma2)
-#        pacman.colide_com_fantasma(fantasma3)
 
         if ticks >20:
             fantasma2.atualizar_posicao(pacman.posicao)
@@ -174,7 +210,7 @@ while not checar:
         # Atualiza a posição do Pac-Man
     if ticks % 1 == 0:
         if i == 10:
-            atualizar_posicao_pacman(pacman.posicao, direcao_pacman)
+            pacman.atualizar_posicao_pacman(pacman.posicao, direcao_pacman)
             i=0
 
     # Eventos do Pygame
@@ -195,15 +231,21 @@ while not checar:
     # Limpa a tela
     tela.fill(PRETO)
 
+    # Desenha o mapa
+    desenha_mapa(mapa, 20,pacman)
+
+    # Renderiza o texto da pontuação
+    pontuacao_texto = fonte.render(f"Pontuação: {pacman.pontos}", True, VERMELHO)
+
+    # Desenha o texto da pontuação na tela
+    tela.blit(pontuacao_texto, (10, 2))
+
     # Desenha o Pac-Man
     pacman.desenhar()
     # Desenha os fantasmas
     fantasma1.desenhar()
     fantasma2.desenhar()
     fantasma3.desenhar()
-
-    # Desenha o mapa
-    desenha_mapa(mapa, 20)
     
     # Atualiza a tela
     pygame.display.update()
