@@ -2,7 +2,6 @@ import pygame
 from mapa import mapa
 from collections import deque
 import sys
-import time
 
 # Define as cores
 PRETO = (0, 0, 0)
@@ -28,7 +27,7 @@ tamanho = (540, 540)
 pygame.init()
 
 # Define o título da janela
-pygame.display.set_caption("Pac-Man")
+pygame.display.set_caption("Pac-Man-menu")
 
 # Cria a janela
 tela = pygame.display.set_mode(tamanho)
@@ -36,20 +35,27 @@ tela = pygame.display.set_mode(tamanho)
 # Define a fonte
 fonte = pygame.font.SysFont(None, 25)
 
+fonte_creditos = pygame.font.SysFont(None, 21)
+
 def menu_inicial():
  
     # Define as opções do menu
-    opcoes = ["Jogar", "Instruções", "Créditos", "Sair"]
+    opcoes = ["Jogar", "Sair"]
     opcao_selecionada = 0
 
     while True:
         # Limpa a tela
         tela.fill(PRETO)
 
-        # Desenha o título
-        titulo = fonte.render("Pac-Man", True, AMARELO)
-        titulo_rect = titulo.get_rect(center=(tamanho[0]/2, 100))
-        tela.blit(titulo, titulo_rect)
+        # Carrega a imagem do Pac-Man
+        pacman_logo = pygame.image.load('pacman-logo.png')
+        
+        # Redimensiona a imagem do Pac-Man para 200 pixels de largura
+        pacman_logo = pygame.transform.scale(pacman_logo, (400, int(400 * pacman_logo.get_height() / pacman_logo.get_width())))
+
+        # Desenha a imagem do Pac-Man
+        pacman_rect = pacman_logo.get_rect(center=(tamanho[0]/2, 100))
+        tela.blit(pacman_logo, pacman_rect)
 
         # Desenha as opções do menu
         for i, opcao in enumerate(opcoes):
@@ -57,6 +63,11 @@ def menu_inicial():
             texto = fonte.render(opcao, True, cor)
             texto_rect = texto.get_rect(center=(tamanho[0]/2, 250 + i * 50))
             tela.blit(texto, texto_rect)
+            
+        # Desenha os créditos na parte inferior da tela
+        creditos = fonte_creditos.render("Criado por: Hian Praxedes e Pedro Henrique", True, BRANCO)
+        creditos_rect = creditos.get_rect(midbottom=(tamanho[0]/3.3, tamanho[1]-3))
+        tela.blit(creditos, creditos_rect)
 
         # Atualiza a tela
         pygame.display.flip()
@@ -76,14 +87,6 @@ def menu_inicial():
                         iniciar_jogo()
                         return True
                     elif opcao_selecionada == 1:
-                        # Mostra as instruções
-                        # Implemente essa opção de acordo com o que você quiser mostrar
-                        pass
-                    elif opcao_selecionada == 2:
-                        # Mostra os créditos
-                        # Implemente essa opção de acordo com o que você quiser mostrar
-                        pass
-                    elif opcao_selecionada == 3:
                         # Sai do jogo
                         sys.exit()
 
