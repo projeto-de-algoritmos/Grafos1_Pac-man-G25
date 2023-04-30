@@ -1,4 +1,5 @@
 import pygame
+import time
 from mapa import mapa
 from collections import deque
 
@@ -14,10 +15,13 @@ ticks=0
 # Define o temporizador
 temporizador = pygame.time.Clock()
 tempo_segundo = 0  # Inicializa o contador do tempo em 0
+contador_tempo = 0
 
 # Define o tamanho da janela
 tamanho = (540, 540)
  
+direcao_pacman = "direita"
+
 # Inicializa o Pygame
 pygame.init()
  
@@ -71,6 +75,22 @@ class Fantasma:
                 if fantasma != self and fantasma.posicao == nova_posicao:
                     return
             self.set_posicao(nova_posicao)
+            
+def atualizar_posicao_pacman(pacman_posicao, direcao_pacman):
+    i, j = pacman_posicao
+    if direcao_pacman == "direita":
+        j += 1
+    elif direcao_pacman == "esquerda":
+        j -= 1
+    elif direcao_pacman == "cima":
+        i -= 1
+    elif direcao_pacman == "baixo":
+        i += 1
+    if (i, j) in grafo:
+        for fantasma in [fantasma1, fantasma2]:
+            if fantasma.posicao == (i, j):
+                return
+        pacman.set_posicao((i, j))
 
 # Define a classe Pacman
 class Pacman:
@@ -88,23 +108,6 @@ class Pacman:
     def desenhar(self):
         x, y = self.posicao
         pygame.draw.circle(tela, self.color, [y*self.elemento_size+self.elemento_size//2, x*self.elemento_size+self.elemento_size//2], self.elemento_size//2)
-
-    def mover(self, direcao):
-        x, y = self.posicao
-        if direcao == "cima":
-            proximo_no = (x-1, y)
-        elif direcao == "baixo":
-            proximo_no = (x+1, y)
-        elif direcao == "esquerda":
-            proximo_no = (x, y-1)
-        elif direcao == "direita":
-            proximo_no = (x, y+1)
-        if proximo_no in grafo:
-            if proximo_no not in self.visitados:
-                self.visitados.add(proximo_no)
-
-                self.pontos += 1
-            self.posicao = proximo_no
 
 def get_vizinhos(i, j):
     vizinhos = []
@@ -145,6 +148,8 @@ fantasma3 = Fantasma(10, 13, 20)
 # Loop principal do jogo
 checar = False
 
+i=0
+
 while not checar:
     # Atualiza o temporizados
     tempo_millisegundos = temporizador.tick(60)
@@ -166,19 +171,25 @@ while not checar:
         if ticks >40:
             fantasma3.atualizar_posicao(pacman.posicao)
             tempo_segundo -= 1
+        # Atualiza a posição do Pac-Man
+    if ticks % 1 == 0:
+        if i == 10:
+            atualizar_posicao_pacman(pacman.posicao, direcao_pacman)
+            i=0
 
+    # Eventos do Pygame
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             checar = True
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                pacman.mover("cima")  
-            elif event.key == pygame.K_DOWN:
-                pacman.mover("baixo")
+            if event.key == pygame.K_RIGHT:
+                direcao_pacman = "direita"
             elif event.key == pygame.K_LEFT:
-                pacman.mover("esquerda")
-            elif event.key == pygame.K_RIGHT:
-                pacman.mover("direita") 
+                direcao_pacman = "esquerda"
+            elif event.key == pygame.K_UP:
+                direcao_pacman = "cima"
+            elif event.key == pygame.K_DOWN:
+                direcao_pacman = "baixo"
 
     #fantasma2.atualizar_posicao(pacman.posicao)
     # Limpa a tela
@@ -196,6 +207,8 @@ while not checar:
     
     # Atualiza a tela
     pygame.display.update()
+    
+    i += 1
 
 # Encerra o Pygame
 pygame.quit()
