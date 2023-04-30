@@ -1,7 +1,7 @@
 import pygame
-import time
 from mapa import mapa
 from collections import deque
+import sys
 
 # Define as cores
 PRETO = (0, 0, 0)
@@ -9,6 +9,16 @@ AZUL = (0, 0, 255)
 AMARELO = (255, 255, 0)
 VERMELHO = (255, 0, 0)
 BRANCO = (255, 255, 255)
+
+# Carrega a imagem do Pac-Man
+pacman_img = pygame.image.load("packman_icon.png")
+tamanho = (20, 20)
+imagem_redimensionada = pygame.transform.scale(pacman_img, tamanho)
+
+# Carrega a imagem do fantasmas
+fantasma1_img = pygame.image.load("fantasma1.png")
+tamanho = (24, 24)
+imagem_redimensionada_fantasma = pygame.transform.scale(fantasma1_img, tamanho)
 
 # Define os ticks
 ticks=0
@@ -65,7 +75,7 @@ class Fantasma:
 
     def desenhar(self):
         x, y = self.posicao
-        pygame.draw.circle(tela, self.color, [y*self.elemento_size+self.elemento_size//2, x*self.elemento_size+self.elemento_size//2], self.elemento_size//2)
+        tela.blit(imagem_redimensionada_fantasma, [y*self.elemento_size+self.elemento_size//30, x*self.elemento_size+self.elemento_size//30])
 
     def atualizar_posicao(self, pacman_posicao):
         visitados, caminho_minimo = bfs(grafo, self.posicao, pacman_posicao)
@@ -112,7 +122,8 @@ class Pacman:
 
     def desenhar(self):
         x, y = self.posicao
-        pygame.draw.circle(tela, self.color, [y*self.elemento_size+self.elemento_size//2, x*self.elemento_size+self.elemento_size//2], self.elemento_size//2)
+        # Desenha o Pac-Man
+        tela.blit(imagem_redimensionada, [y*self.elemento_size+self.elemento_size//30, x*self.elemento_size+self.elemento_size//30])
     
     def colide_com_fantasma(self, fantasma):
         if self.posicao == fantasma.posicao:
@@ -127,7 +138,7 @@ class Pacman:
         pygame.display.flip()
         pygame.time.wait(2000)
         #running = False
-        pygame.quit()
+        sys.exit()
 
 def get_vizinhos(i, j):
     vizinhos = []
@@ -178,13 +189,13 @@ i=0
 while not checar:
     if pacman.pontos==274:
         # Adicione o código para reiniciar o jogo ou para mostrar uma mensagem de "game over"
-        fonte = pygame.fonte.Font(None, 72)
-        text = fonte.render("You Win", 1, BRANCO)
+        font = pygame.font.Font(None, 72)
+        text = font.render("You Win", 1, BRANCO)
         tela.blit(text, (540 / 2 - text.get_width() / 2, 540 / 2 - text.get_height() / 2))
         pygame.display.flip()
         pygame.time.wait(2000)
         #running = False
-        pygame.quit()
+        sys.exit()
 
     #Verifica se há colisão do pacman com o fantasma
     pacman.colide_com_fantasma(fantasma1)
@@ -207,6 +218,7 @@ while not checar:
         if ticks >40:
             fantasma3.atualizar_posicao(pacman.posicao)
             tempo_segundo -= 1
+            
         # Atualiza a posição do Pac-Man
     if ticks % 1 == 0:
         if i == 10:
