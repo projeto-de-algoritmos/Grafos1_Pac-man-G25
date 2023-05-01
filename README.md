@@ -16,7 +16,7 @@ Esse projeto é uma versão do famoso jogo PAC-MAN, onde o objetivo é coletar t
 Para isso, foi construído um mapa utilizando um grafo, onde cada posição no mapa é representada por um nó do grafo, e as conexões entre os nós são arestas. Dessa maneira, foi possível calcular a menor distância entre os fantasmas e o PAC-Man usando os algoritmos BFS de busca em largura.
 
 ### Vídeo de apresentação
-![Apresentação](https://github.com/projeto-de-algoritmos/Grafos1_Pac-man-G25/raw/main/Video%20de%20apresentacao/Video%20de%20apresentacao%20PA_G25.mp4)
+[Apresentação](https://github.com/projeto-de-algoritmos/Grafos1_Pac-man-G25/raw/main/Video%20de%20apresentacao/Video%20de%20apresentacao%20PA_G25.mp4)
 
 ## Screenshots
 <div align="center">
